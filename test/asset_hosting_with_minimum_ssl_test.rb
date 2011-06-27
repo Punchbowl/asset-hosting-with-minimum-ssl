@@ -47,6 +47,11 @@ class AssetHostingWithMinimumSslTest < Test::Unit::TestCase
       @asset_host.call("/stylesheets/application.css", ssl_request_from("IE"))
   end
   
+  def test_false_requests_should_go_non_ssl
+    assert_match \
+      non_ssl_host,
+      @asset_host.call("/images/blank.gif", false_request)
+  end
 
   private
     def non_ssl_host
@@ -57,8 +62,12 @@ class AssetHostingWithMinimumSslTest < Test::Unit::TestCase
       "https://assets1.example.com/"
     end
   
-  
     def ssl_request_from(user_agent)
       stub(:headers => { "USER_AGENT" => user_agent }, :ssl? => true)
+    end
+
+    def false_request
+      # Asset hosting in mailers will pass FalseClass as the request if there is no request.
+      false
     end
 end
